@@ -6,7 +6,7 @@ TED の動画に対して、日本語字幕を下、英語字幕を上に hardsub します。
 
 依存関係：
   rake 、 json 、 nokogiri が必要です。
-  > gem rake json nokogiri
+  > gem install rake json nokogiri
 
   さらに hardsub のために mencoder が必要です。
   codec の適切なインストールも必要です。
@@ -32,8 +32,7 @@ TED の動画に対して、日本語字幕を下、英語字幕を上に hardsub します。
        twolame  - Twolame MP2 audio encoder
        faac     - FAAC AAC audio encoder
 
-   現在のバージョンではダウンロードに wget を使っています。
-   （不要かも？）
+   ほかに現在のバージョンではダウンロードに wget を使っています。
 
 対象：
   data.txt に書かれた URL の動画を収集対象とします。

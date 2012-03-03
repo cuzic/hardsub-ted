@@ -6,9 +6,12 @@ task :default do
   Rake::Task[:"hardsub-all"].invoke
 end
 
+directory "json"
+
 desc "make json files from data.txt"
-task :setup => "data.txt" do
-  make_jsons_from_data
+task :setup => %W(data.txt json) do |t|
+  datafile, = *t.sources
+  make_jsons_from_data datafile
 end
 
 desc "hardsub all mpeg4 files from json data"
@@ -22,7 +25,7 @@ end
 desc "softsub all mpeg4 files from json data"
 task :"softsub-all" do
   Dir.glob("json/*.json") do |json|
-    target = json.gsub("json/", "soft-sub/").gsub(".json", ".mp4")
+    target = json.gsub("json/", "softsub/").gsub(".json", ".mp4")
     Rake::Task[target].invoke
   end
 end
@@ -65,11 +68,11 @@ rescue
   return false
 end
 
-def make_jsons_from_data
+def make_jsons_from_data datafile
   require 'json'
   require 'nokogiri'
   require 'open-uri'
-  filename = File.join(File.dirname(__FILE__), "data.txt")
+  filename = File.join(File.dirname(__FILE__), datafile)
 
   open(filename) do |f|
     f.each_line do |line|
@@ -79,8 +82,7 @@ def make_jsons_from_data
   end
 end
 
-directory "json"
-file "data.txt" => "json" do |t|
+file "data.txt" do |t|
   File.open(t.name, "w") do |f|
     1.upto(1312) do |i|
       f.puts "http://www.ted.com/talks/view/id/#{i}"
@@ -89,7 +91,7 @@ file "data.txt" => "json" do |t|
 end
 
 directory "none"
-rule2 %r(none/(.+)\.mp4) => ["json/\\1.json", "none"] do |t|
+rule2 %r(none/(.+)\.mp4) => %W(json/\\1.json none) do |t|
   require 'json'
   target   = t.name
   jsonname = t.source
@@ -104,13 +106,24 @@ rule2 %r(none/(.+)\.mp4) => ["json/\\1.json", "none"] do |t|
 end
 
 directory "srt"
-rule2 %r(srt/(.+)-en\.srt) => ["json/\\1.json", "srt"] do |t|
+rule2 %r(srt/(.+)-en\.srt) => %W(json/\\1.json srt) do |t|
   require 'json'
   target   = t.name
   jsonname = t.source
+  download_srt target, jsonname, "en"
+end
+
+rule2 %r(srt/(.+)-ja\.srt) => %W(json/\\1.json srt) do |t|
+  require 'json'
+  target   = t.name
+  jsonname = t.source
+  download_srt target, jsonname, "ja"
+end
+
+def download_srt target, jsonname, lang
   json = JSON.parse(open(jsonname).read)
   tedid = json["tedid"]
-  url = "http://www.ted.com/talks/subtitles/id/#{tedid}/lang/en/format/srt"
+  url = "http://www.ted.com/talks/subtitles/id/#{tedid}/lang/#{lang}/format/srt"
   cmdline = "wget -O '#{target}' '#{url}'"
   sh cmdline or
   begin
@@ -118,21 +131,7 @@ rule2 %r(srt/(.+)-en\.srt) => ["json/\\1.json", "srt"] do |t|
   end
 end
 
-rule2 %r(srt/(.+)-ja\.srt) => ["json/\\1.json", "srt"] do |t|
-  require 'json'
-  target   = t.name
-  jsonname = t.source
-  json = JSON.parse(open(jsonname).read)
-  tedid = json["tedid"]
-  url = "http://www.ted.com/talks/subtitles/id/#{tedid}/lang/ja/format/srt"
-  cmdline = "wget -O '#{target}' '#{url}'"
-  sh cmdline or
-  begin
-    File.unlink jsonname
-  end
-end
-
-rule2 %r(srt/(.+)\.ass) => ["srt/\\1-ja.srt", "srt/\\1-en.srt"] do |t|
+rule2 %r(srt/(.+)\.ass) =>%W(srt/\\1-ja.srt srt/\\1-en.srt) do |t|
   require 'json'
   target   = t.name
   ja, en = t.sources
@@ -141,21 +140,21 @@ rule2 %r(srt/(.+)\.ass) => ["srt/\\1-ja.srt", "srt/\\1-en.srt"] do |t|
 end
 
 directory "javideo"
-rule2 %r(javideo/(.+)\.mp4) => ["srt/\\1-ja.srt", "none/\\1.mp4", "javideo"] do |t|
+rule2 %r(javideo/(.+)\.mp4) => %W(srt/\\1-ja.srt none/\\1.mp4 javideo) do |t|
   ja_srt, original = *t.sources
   bottom = "100"
   combine t.name, original, ja_srt, bottom
 end
 
 directory "hardsub"
-rule2 %r(hardsub/(.+)\.mp4) => ["srt/\\1-en.srt", "javideo/\\1.mp4", "hardsub"]  do |t|
-  ass, none, = *t.sources
+rule2 %r(hardsub/(.+)\.mp4) => %W(srt/\\1-en.srt javideo/\\1.mp4 hardsub) do |t|
+  en_srt, none, = *t.sources
   top = "8"
-  combine t.name, none, ass, top
+  combine t.name, none, en_srt, top
 end
 
 directory "softsub"
-rule2 %r(softsub/(.+)\.mp4) => ["srt/\\1-en.srt", "javideo/\\1.mp4", "softsub"]  do |t|
+rule2 %r(softsub/(.+)\.mp4) => %W(srt/\\1-en.srt javideo/\\1.mp4 softsub)  do |t|
   en_srt, javideo, = *t.sources
   softsub t.name, javideo, en_srt
 end
@@ -166,7 +165,6 @@ def combine target, original, srt, subpos
     :output => target,
     #:vf => "dsize=480:352:2,scale=-8:-8,harddup",
     :vf => "dsize=480:320:2,scale=-8:-8,expand=480:320,harddup",
-    :faacopts => "mpeg=4:object=2:raw:br=128",
     :of => "lavf",
     #:lavfopts => "format=mp4",
     :oac => "faac",
@@ -179,7 +177,7 @@ def combine target, original, srt, subpos
     :subalign => "2",
     :sub => srt,
     :x264encopts => <<X264.chomp,
-nocabac:level_idc=30:bframes=0:bitrate=512:threads=auto:turbo=1:global_header:threads=auto:subq=5:frameref=6:partitions=all:trellis=1:chroma_me:me=umh
+nocabac:level_idc=30:bframes=0:bitrate=512:threads=auto:global_header:threads=auto:subq=5:frameref=6:partitions=all:trellis=1:chroma_me:me=umh
 X264
   }
 
