@@ -1,0 +1,39 @@
+TED の動画に対して、日本語字幕を下、英語字幕を上に hardsub します。
+
+使い方：
+　> rake setup # TED の動画のメタ情報を json ディレクトリに作成します。
+  > rake hardsub-all # TED の動画を作成します。
+
+依存関係：
+  rake 、 json 、 nokogiri が必要です。
+  > gem rake json nokogiri
+
+  さらに hardsub のために mencoder が必要です。
+  codec の適切なインストールも必要です。
+  特に x264 と faac が利用可能であることが必要です。
+
+  > mencoder -ovc help
+    Available codecs:
+       copy     - frame copy, without re-encoding. Doesn't work with filters.
+       frameno  - special audio-only file for 3-pass encoding, see DOCS.
+       raw      - uncompressed video. Use fourcc option to set format explicitly.
+       lavc     - libavcodec codecs - best quality!
+       vfw      - VfW DLLs, read DOCS/HTML/en/encoding-guide.html.
+       qtvideo  - QuickTime DLLs, currently only SVQ1/3 are supported.
+       xvid     - XviD encoding
+       x264     - H.264 encoding
+
+  > mencoder -oac help
+    Available codecs:
+       copy     - frame copy, without re-encoding (useful for AC3)
+       pcm      - uncompressed PCM audio
+       mp3lame  - cbr/abr/vbr MP3 using libmp3lame
+       lavc     - FFmpeg audio encoder (MP2, AC3, ...)
+       twolame  - Twolame MP2 audio encoder
+       faac     - FAAC AAC audio encoder
+
+   現在のバージョンではダウンロードに wget を使っています。
+   （不要かも？）
+
+対象：
+  data.txt に書かれた URL の動画を収集対象とします。
