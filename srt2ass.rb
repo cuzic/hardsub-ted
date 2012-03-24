@@ -3,7 +3,6 @@ require "pp"
 
 $KCODE = "u"
 
-
 # ass data
 $ass_header = <<ASS
 [Script Info]
@@ -16,16 +15,16 @@ PlayDepth: 0
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Top,Arial,16,&H00FFFFFF,&H000000FF,&H0016360E,&H0017460B,0,0,0,0,100,100,0,0,1,1.4,0.6,8,10,10,10,1
-Style: Bottom,MS Gothic,12,&H00FFFFFF,&H000000FF,&H0016360E,&H0017460B,0,0,0,0,100,100,0,0,1,1.4,0.6,2,10,10,10,1
+Style: English,Arial,8,&H00FFFFFF,&H000000FF,&H0016360E,&H0017460B,0,0,0,0,100,100,0,0,1,1.4,0.6,8,10,10,0,1
+Style: Japanese,MS Gothic,7,&H00FFFFFF,&H000000FF,&H0016360E,&H0017460B,0,0,0,0,100,100,0,0,1,1.4,0.6,8,10,10,0,1
 
 [Events]
 Format: Layer, Start, End, Style, Actor, MarginL, MarginR, MarginV, Effect, Text
 ASS
 
 $regex_srt = /^\d+\n(\d\d:\d\d:\d\d),(\d\d)\d[\ ]?-->[\ ]?(\d\d:\d\d:\d\d),(\d\d)\d(?:  SSA.*)?\n([\s\S]+)/
-$ass_bottom = 'Dialogue: 0,\1.\2,\3.\4,Bottom,,0000,0000,0000,,\5'
-$ass_top    = 'Dialogue: 0,\1.34,\3.\4,Top,,0000,0000,0000,,\5'
+$ass_ja = 'Dialogue: 0,\1.\2,\3.\4,Japanese,,0000,0000,0000,,\5'
+$ass_en = 'Dialogue: 0,\1.34,\3.\4,English,,0000,0000,0000,,\5'
 
 def split_emptyline filename
   open(filename) do |f|
@@ -38,6 +37,7 @@ def split_emptyline filename
         block << line
       end
     end
+    yield block
   end
 end
 
@@ -55,11 +55,11 @@ def main
     next unless File.file? filename
     next unless filename =~ /\.srt$/
     if filename =~ /ja.srt/
-      parse_srt(filename, $ass_bottom) do |line|
+      parse_srt(filename, $ass_ja) do |line|
         array << line
       end
     else
-      parse_srt(filename, $ass_top) do |line|
+      parse_srt(filename, $ass_en) do |line|
         array << line
       end
     end

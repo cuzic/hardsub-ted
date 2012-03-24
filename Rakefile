@@ -147,10 +147,11 @@ rule2 %r(javideo/(.+)\.mp4) => %W(srt/\\1-ja.srt none/\\1.mp4 javideo) do |t|
 end
 
 directory "hardsub"
-rule2 %r(hardsub/(.+)\.mp4) => %W(srt/\\1-en.srt javideo/\\1.mp4 hardsub) do |t|
-  en_srt, none, = *t.sources
-  top = "8"
-  combine t.name, none, en_srt, top
+rule2 %r(hardsub/(.+)\.mp4) => %W(srt/\\1.ass none/\\1.mp4 hardsub) do |t|
+#rule2 %r(hardsub/(.+)\.mp4) => %W(srt/\\1-en.srt javideo/\\1.mp4 hardsub) do |t|
+  ass, none, = *t.sources
+  top = "100"
+  combine t.name, none, ass, top
 end
 
 directory "softsub"
@@ -164,17 +165,17 @@ def combine target, original, srt, subpos
     :source => original,
     :output => target,
     #:vf => "dsize=480:352:2,scale=-8:-8,harddup",
-    :vf => "dsize=480:320:2,scale=-8:-8,expand=480:320,harddup",
+    :vf => "dsize=480:320:2,scale=-8:-8,expand=480:320:0:0:1,harddup",
     :of => "lavf",
     #:lavfopts => "format=mp4",
     :oac => "faac",
     :faacopts => "mpeg=4:object=2:raw:br=128",
     :ovc => "x264",
     :sws => "9",
-    :subpos => "#{subpos}",
+    #subpos => "#{subpos}",
     :subcp => "utf-8",
     :"subfont-text-scale" => "3",
-    :subalign => "2",
+    #:subalign => "2",
     :sub => srt,
     :x264encopts => <<X264.chomp,
 nocabac:level_idc=30:bframes=0:bitrate=512:threads=auto:global_header:threads=auto:subq=5:frameref=6:partitions=all:trellis=1:chroma_me:me=umh
