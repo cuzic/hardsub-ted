@@ -1,16 +1,22 @@
-TED �̓���ɑ΂��āA���{�ꎚ�������A�p�ꎚ������� hardsub ���܂��B
+TED の動画に対して、日本語字幕、英語字幕の両方を hardsub します。
 
-�g�����F
-�@> rake setup # TED �̓���̃��^���� json �f�B���N�g���ɍ쐬���܂��B
-  > rake hardsub-all # TED �̓�����쐬���܂��B
+使い方：
+　> rake setup # TED の動画のメタ情報を json ディレクトリに作成します。
+  > rake hardsub-all # TED の動画を作成します。
 
-�ˑ��֌W�F
-  rake �A json �A nokogiri ���K�v�ł��B
+依存関係：
+　■ Ruby
+　◇ バージョン
+　　Ruby 1.8.7 と Ruby 1.9.3 での動作を確認しています。
+
+　◇ Ruby の依存ライブラリ
+  rake 、 json 、 nokogiri が必要です。
   > gem install rake json nokogiri
 
-  ����� hardsub �̂��߂� mencoder ���K�v�ł��B
-  codec �̓K�؂ȃC���X�g�[�����K�v�ł��B
-  ���� x264 �� faac �����p�\�ł��邱�Ƃ��K�v�ł��B
+　■ mencoder の依存関係
+  さらに hardsub のために mencoder が必要です。
+  ◇ codec
+  特に x264 と faac が利用可能であることが必要です。
 
   > mencoder -ovc help
     Available codecs:
@@ -32,7 +38,21 @@ TED �̓���ɑ΂��āA���{�ꎚ�������A�p�ꎚ������� hardsub ���܂��B
        twolame  - Twolame MP2 audio encoder
        faac     - FAAC AAC audio encoder
 
-   �ق��Ɍ��݂̃o�[�W�����ł̓_�E�����[�h�� wget ���g���Ă��܂��B
+　◇ 字幕関係
+    mencoder で字幕をエンコードするために、 libfreetype とともに 
+    mencoder がコンパイルされていることが必要です。
+    
+  > mencoder -list-options
+    の実行結果を確認して、 ass 関係のオプションが有効か確認してください。
+    
+    さらに、$HOME/.mplayer/subfont.ttf が存在していることが必要です。
+    TrueTypeFont については、自分の好みのものを使ってください。
+    作者は、Windows から Meirio UI フォントを持ってきて使っています。
 
-�ΏہF
-  data.txt �ɏ����ꂽ URL �̓�������W�ΏۂƂ��܂��B
+  ■ ダウンロード  
+   ほかに現在のバージョンではダウンロードに wget を使っています。
+   将来のバージョンでは、wget への依存をなくすかもしれません。
+
+対象：
+  data.txt に書かれた URL の動画を収集対象とします。
+  data.txt がない場合は自動生成します。
