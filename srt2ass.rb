@@ -15,8 +15,8 @@ PlayDepth: 0
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: English,Arial,8,&H00FFFFFF,&H000000FF,&H0016360E,&H0017460B,0,0,0,0,100,100,0,0,1,1.4,0.6,8,10,10,0,1
-Style: Japanese,MS Gothic,7,&H00FFFFFF,&H000000FF,&H0016360E,&H0017460B,0,0,0,0,100,100,0,0,1,1.4,0.6,8,10,10,0,1
+Style: English,Arial,10,&H00FFFFFF,&H000000FF,&H0016360E,&H0017460B,0,0,0,0,100,100,0,0,1,1.4,0.6,8,10,10,0,1
+Style: Japanese,MS Gothic,10,&H00FFFFFF,&H000000FF,&H0016360E,&H0017460B,0,0,0,0,100,100,0,0,1,1.4,0.6,8,10,10,0,1
 
 [Events]
 Format: Layer, Start, End, Style, Actor, MarginL, MarginR, MarginV, Effect, Text

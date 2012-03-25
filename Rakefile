@@ -172,6 +172,8 @@ def combine target, original, srt, subpos
     :faacopts => "mpeg=4:object=2:raw:br=128",
     :ovc => "x264",
     :sws => "9",
+    :ass => "",
+    :"ass-line-spacing" => "0",
     #subpos => "#{subpos}",
     :subcp => "utf-8",
     :"subfont-text-scale" => "3",
