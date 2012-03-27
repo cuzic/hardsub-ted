@@ -10,7 +10,7 @@ directory "json"
 
 desc "make json files from data.txt"
 task :setup => %W(data.txt json) do |t|
-  datafile, = *t.sources
+  datafile, = *t.prerequisites
   make_jsons_from_data datafile
 end
 
